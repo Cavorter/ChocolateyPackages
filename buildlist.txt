@@ -1,1 +1,2 @@
 stylecop\stylecop.nuspec
+NugetPackageManagerForVisualStudio2013\NugetPackageManagerForVisualStudio2013.nuspec
