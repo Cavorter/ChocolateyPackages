@@ -1,2 +1,5 @@
 stylecop\stylecop.nuspec
 NugetPackageManagerForVisualStudio2013\NugetPackageManagerForVisualStudio2013.nuspec
+visualstudio2013-stylecop\visualstudio2013-stylecop.nuspec
+visualstudio2015-stylecop\visualstudio2015-stylecop.nuspec
+visualstudio2017-stylecop\visualstudio2017-stylecop.nuspec
