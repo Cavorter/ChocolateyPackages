@@ -2,6 +2,7 @@
 
 ## Version 1.6.0
 - New helper: Install-VisualStudioVsixExtension. Supports Visual Studio 2010-2017 and replaces Install-ChocolateyVsixPackage.
+- TODO: should Get-VsixInstaller be public?
 
 ## Version 1.5.1
 - Changed the method of locating the VS 2017 installer during modify and uninstall operations to not depend on Uninstall registry

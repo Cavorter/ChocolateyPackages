@@ -58,6 +58,10 @@ Supports the new "Willow" installer of Visual Studio 2017 RC only.
 Installs or updates the Visual Studio Installer.
 Supports the new "Willow" installer of Visual Studio 2017 RC only.
 
+### Install-VisualStudioVsixExtension
+
+TODO
+
 ## Installation
 
 End users typically do not install this package directly - it is usually installed automatically as a dependency of another package.
@@ -119,6 +123,9 @@ You can now test any of the functions:
         -Checksum '6A63984CAFE972D655817395CC12054068077015' `
         -ChecksumType 'SHA1' `
         -InstallerTechnology 'MsiVS2015OrEarlier'
+
+    Install-VisualStudioVsixExtension `
+        -TODO
 
 Keep in mind that functions may work fully only in the context of the `chocolateyInstaller` module.
 
