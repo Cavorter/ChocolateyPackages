@@ -27,40 +27,60 @@
 
     $packageParameters = Parse-Parameters $env:chocolateyPackageParameters
 
+    $argumentSetFromArgumentList = @{}
     for ($i = 0; $i -lt $ArgumentList.Length; $i += 2)
     {
-        $packageParameters[$ArgumentList[$i]] = $ArgumentList[$i + 1]
+        $argumentSetFromArgumentList[$ArgumentList[$i]] = $ArgumentList[$i + 1]
     }
 
-    $packageParameters['norestart'] = ''
-    if (-not $packageParameters.ContainsKey('quiet') -and -not $packageParameters.ContainsKey('passive'))
+    $baseArgumentSet = $argumentSetFromArgumentList.Clone()
+    Merge-AdditionalArguments -Arguments $baseArgumentSet -AdditionalArguments $packageParameters
+    @('add', 'remove') | Where-Object { $argumentSetFromArgumentList.ContainsKey($_) } | ForEach-Object `
     {
-        $packageParameters['quiet'] = ''
+        $value = $argumentSetFromArgumentList[$_]
+        $existingValue = $baseArgumentSet[$_]
+        if ($existingValue -is [System.Collections.IList])
+        {
+            if ($existingValue -notcontains $value)
+            {
+                [void]$existingValue.Add($value)
+            }
+        }
+        else
+        {
+            $baseArgumentSet[$_] = New-Object -TypeName System.Collections.Generic.List``1[System.String] -ArgumentList (,[string[]]($existingValue, $value))
+        }
     }
 
-    Remove-NegatedArguments -Arguments $packageParameters -RemoveNegativeSwitches
-
-    $argumentSets = ,$packageParameters
-    if ($packageParameters.ContainsKey('installPath'))
+    $baseArgumentSet['norestart'] = ''
+    if (-not $baseArgumentSet.ContainsKey('quiet') -and -not $baseArgumentSet.ContainsKey('passive'))
     {
-        if ($packageParameters.ContainsKey('productId'))
+        $baseArgumentSet['quiet'] = ''
+    }
+
+    Remove-NegatedArguments -Arguments $baseArgumentSet -RemoveNegativeSwitches
+
+    $argumentSets = ,$baseArgumentSet
+    if ($baseArgumentSet.ContainsKey('installPath'))
+    {
+        if ($baseArgumentSet.ContainsKey('productId'))
         {
             Write-Warning 'Parameter issue: productId is ignored when installPath is specified.'
         }
 
-        if ($packageParameters.ContainsKey('channelId'))
+        if ($baseArgumentSet.ContainsKey('channelId'))
         {
             Write-Warning 'Parameter issue: channelId is ignored when installPath is specified.'
         }
     }
-    elseif ($packageParameters.ContainsKey('productId'))
+    elseif ($baseArgumentSet.ContainsKey('productId'))
     {
-        if (-not $packageParameters.ContainsKey('channelId'))
+        if (-not $baseArgumentSet.ContainsKey('channelId'))
         {
             throw "Parameter error: when productId is specified, channelId must be specified, too."
         }
     }
-    elseif ($packageParameters.ContainsKey('channelId'))
+    elseif ($baseArgumentSet.ContainsKey('channelId'))
     {
         throw "Parameter error: when channelId is specified, productId must be specified, too."
     }
@@ -74,15 +94,15 @@
 
         if ($Operation -eq 'modify')
         {
-            if ($packageParameters.ContainsKey('add'))
+            if ($baseArgumentSet.ContainsKey('add'))
             {
-                $packageIdsList = @($packageParameters['add'])
+                $packageIdsList = $baseArgumentSet['add']
                 $unwantedPackageSelector = { $productInfo.selectedPackages.ContainsKey($_) }
                 $unwantedStateDescription = 'contains'
             }
-            elseif ($packageParameters.ContainsKey('remove'))
+            elseif ($baseArgumentSet.ContainsKey('remove'))
             {
-                $packageIdsList = @($packageParameters['remove'])
+                $packageIdsList = $baseArgumentSet['remove']
                 $unwantedPackageSelector = { -not $productInfo.selectedPackages.ContainsKey($_) }
                 $unwantedStateDescription = 'does not contain'
             }
@@ -93,7 +113,7 @@
         }
         elseif ($Operation -eq 'uninstall')
         {
-            $packageIdsList = @()
+            $packageIdsList = ''
             $unwantedPackageSelector = { $false }
             $unwantedStateDescription = '<unused>'
         }
@@ -102,8 +122,7 @@
             throw "Unsupported Operation: $Operation"
         }
 
-        # handle syntax "--add Workload2;includeRecommended;includeOptional" - extract the actual id only
-        $packageIds = $packageIdsList | ForEach-Object { $_ -split ';' | Select-Object -First 1 }
+        $packageIds = ($packageIdsList -split ' ') | ForEach-Object { $_ -split ';' | Select-Object -First 1 }
         $applicableProductIds = $ApplicableProducts | ForEach-Object { "Microsoft.VisualStudio.Product.$_" }
         Write-Debug ('This package supports Visual Studio product id(s): {0}' -f ($applicableProductIds -join ' '))
 
@@ -134,7 +153,7 @@
                 continue
             }
 
-            $argumentSet = $packageParameters.Clone()
+            $argumentSet = $baseArgumentSet.Clone()
             $argumentSet['installPath'] = $productInfo.installationPath
             $argumentSets += $argumentSet
         }
