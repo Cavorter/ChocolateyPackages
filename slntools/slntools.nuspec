@@ -23,4 +23,7 @@ Key features include:
 1.1.3.0: Initial package release.
     </releaseNotes>
   </metadata>
+  <dependencies>
+    <dependency id="dotnet3.5" version"3.5.20160716" />
+  </dependencies>
 </package>
