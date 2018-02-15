@@ -1,4 +1,5 @@
 chocolatey-visualstudio.extension\chocolatey-visualstudio.extension.nuspec
+slntools\slntools.nuspec
 stylecop\stylecop.nuspec
 stylecop-vsix\stylecop-vsix.nuspec
 NugetPackageManagerForVisualStudio2013\NugetPackageManagerForVisualStudio2013.nuspec
