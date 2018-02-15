@@ -24,6 +24,6 @@ Key features include:
     </releaseNotes>
   </metadata>
   <dependencies>
-    <dependency id="dotnet3.5" version"3.5.20160716" />
+    <dependency id="dotnet3.5" version="3.5.20160716" />
   </dependencies>
 </package>
